@@ -116,6 +116,20 @@ struct Node* delete_after(struct Node* head, int key) {
     return head;
 }
 
+struct Node* delete_end(struct Node* head){
+    if (head == NULL){
+        printf("LIst is empty\n");
+        return head;
+    }
+    struct Node* ptr = head;
+    while(ptr->next->next != head){
+        ptr = ptr->next;
+    }
+    free(ptr->next);
+    ptr->next = head;
+    return head;
+}
+
 // Function to display the list
 void display(struct Node* head) {
     if (head == NULL) {
@@ -153,9 +167,10 @@ int main() {
         printf("1. Insert Front\n");
         printf("2. Insert End\n");
         printf("3. Insert After\n");
-        printf("4. Delete Head\n");// Free current node
-        printf("5. Delete After\n");
-        printf("6. Display\n");
+        printf("4. Delete Head\n");
+        printf("5. Delete End\n");
+        printf("6. Delete After\n");
+        printf("7. Display\n");
         printf("0. Exit\n");
         printf("Enter your choice: ");
         scanf("%d", &choice);
@@ -182,11 +197,15 @@ int main() {
                 head = delete_head(head);
                 break;
             case 5:
+                head = delete_end(head);
+                break;
+            case 6:
                 printf("Enter key after which to delete: ");
                 scanf("%d", &key);
                 head = delete_after(head, key);
                 break;
-            case 6:
+            
+            case 7:
                 display(head);
                 break;
             case 0:
