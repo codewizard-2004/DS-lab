@@ -21,32 +21,33 @@ struct Node* add_poly(struct Node* poly1, struct Node* poly2) {
     struct Node* result = NULL;  // Result linked list
     struct Node* rtr = NULL;  // Pointer to track the last node in the result
 
-    while (poly1 != NULL && poly2 != NULL) {
+    while (poly1 != NULL || poly2 != NULL) {
         struct Node* new_node = NULL;
-        if (poly1->exp == poly2->exp) {
-            new_node = create_node(poly1->coeff + poly2->coeff, poly1->exp);
+
+        int coeff = 0;
+        int exp = 0;
+
+        // Determine which polynomial to take the term from
+        if (poly1 != NULL && (poly2 == NULL || poly1->exp > poly2->exp)) {
+            coeff = poly1->coeff;
+            exp = poly1->exp;
             poly1 = poly1->link;
+        } else if (poly2 != NULL && (poly1 == NULL || poly2->exp > poly1->exp)) {
+            coeff = poly2->coeff;
+            exp = poly2->exp;
             poly2 = poly2->link;
-        } else if (poly1->exp > poly2->exp) {
-            new_node = create_node(poly1->coeff, poly1->exp);
-            poly1 = poly1->link;
         } else {
-            new_node = create_node(poly2->coeff, poly2->exp);
+            // Exponents are the same, combine coefficients
+            coeff = poly1->coeff + poly2->coeff;
+            exp = poly1->exp;
+            poly1 = poly1->link;
             poly2 = poly2->link;
         }
 
-        if (result == NULL) {
-            result = new_node;  
-            rtr = result;  
-        } else {
-            rtr->link = new_node;
-            rtr = rtr->link;
-        }
-    }
+        // Create a new node with the coefficient and exponent
+        new_node = create_node(coeff, exp);
 
-    // Append remaining terms of poly1
-    while (poly1 != NULL) {
-        struct Node* new_node = create_node(poly1->coeff, poly1->exp);
+        // Append to the result linked list
         if (result == NULL) {
             result = new_node;
             rtr = result;
@@ -54,24 +55,11 @@ struct Node* add_poly(struct Node* poly1, struct Node* poly2) {
             rtr->link = new_node;
             rtr = rtr->link;
         }
-        poly1 = poly1->link;
-    }
-
-    // Append remaining terms of poly2
-    while (poly2 != NULL) {
-        struct Node* new_node = create_node(poly2->coeff, poly2->exp);
-        if (result == NULL) {
-            result = new_node;
-            rtr = result;
-        } else {
-            rtr->link = new_node;
-            rtr = rtr->link;
-        }
-        poly2 = poly2->link;
     }
 
     return result;
 }
+
 
 // Function to print a polynomial
 void print_poly(struct Node* poly) {
