@@ -1,125 +1,144 @@
-// Cprogram to implement an array using linkedlist
+#include <stdio.h>
+#include <stdlib.h>
 
-#include<stdio.h>
-#include<stdlib.h>
-
-struct Node{
+struct Node {
     int coeff;
     int exp;
     struct Node* link;
 };
 
-struct Node* create_node(int coeff , int exp){
-    struct Node* new = (struct Node*)malloc(sizeof(struct Node));
-    new->coeff = coeff;
-    new->exp = exp;
-    return new;
+// Function to create a new node
+struct Node* create_node(int coeff, int exp) {
+    struct Node* new_node = (struct Node*)malloc(sizeof(struct Node));
+    new_node->coeff = coeff;
+    new_node->exp = exp;
+    new_node->link = NULL;  
+    return new_node;
 }
 
-struct Node* add_poly(struct Node* poly1 , struct Node* poly2 , struct Node* result){
-    struct Node* ptr1 = poly1;
-    struct Node* ptr2 = poly2;
-    struct Node* rtr = result;
-    while(ptr1->link != NULL && ptr2->link != NULL){
-        // if power of poly 1 is equal to poly 2
-        if(ptr1->exp == ptr2->exp){
-            if(rtr->coeff == NULL || rtr->exp ==NULL){
-                rtr->coeff = ptr1->coeff + ptr2->coeff;
-                rtr->exp = ptr1->exp;
-                ptr1 = ptr1->link;
-                ptr2 = ptr2->link;
-            }else{
-                struct Node* new = create_node(ptr1->coeff+ptr2->coeff , ptr1->exp);
-                rtr->link = new;
-                rtr = rtr->link;
-                ptr1 = ptr1->link;
-                ptr2 = ptr2->link;
-            }
+// Function to add two polynomials
+struct Node* add_poly(struct Node* poly1, struct Node* poly2) {
+    struct Node* result = NULL;  // Result linked list
+    struct Node* rtr = NULL;  // Pointer to track the last node in the result
+
+    while (poly1 != NULL && poly2 != NULL) {
+        struct Node* new_node = NULL;
+        if (poly1->exp == poly2->exp) {
+            new_node = create_node(poly1->coeff + poly2->coeff, poly1->exp);
+            poly1 = poly1->link;
+            poly2 = poly2->link;
+        } else if (poly1->exp > poly2->exp) {
+            new_node = create_node(poly1->coeff, poly1->exp);
+            poly1 = poly1->link;
+        } else {
+            new_node = create_node(poly2->coeff, poly2->exp);
+            poly2 = poly2->link;
         }
-        else if (ptr1->exp > ptr2->exp){
-            // put the ptr1;
-            if(rtr->coeff == NULL || rtr->exp ==NULL){
-                rtr->coeff = ptr1->coeff;
-                rtr->exp = ptr1->exp;
-                ptr1 = ptr1->link;
-            }else{
-                struct Node* new = create_node(ptr1->coeff , ptr1->exp);
-                rtr->link = new;
-                ptr1 = ptr1->link;
-            }
-        }else{
-            if(rtr->coeff == NULL || rtr->exp ==NULL){
-                rtr->coeff = ptr2->coeff;
-                rtr->exp = ptr2->exp;
-                ptr2 = ptr2->link;
-            }else{
-                struct Node* new = create_node(ptr2->coeff, ptr2->exp);
-                rtr->link = new;
-                ptr2 = ptr2->link;
-            }
+
+        if (result == NULL) {
+            result = new_node;  
+            rtr = result;  
+        } else {
+            rtr->link = new_node;
+            rtr = rtr->link;
         }
-    }
-    //input the remaining nodes
-    while(ptr1->link != NULL){
-        struct Node* new = create_node(ptr1->coeff , ptr1->exp);
-        rtr->link = new;
     }
 
-    while(ptr2->link != NULL){
-        struct Node* new = create_node(ptr2->coeff , ptr2->exp);
-        rtr->link = new;
+    // Append remaining terms of poly1
+    while (poly1 != NULL) {
+        struct Node* new_node = create_node(poly1->coeff, poly1->exp);
+        if (result == NULL) {
+            result = new_node;
+            rtr = result;
+        } else {
+            rtr->link = new_node;
+            rtr = rtr->link;
+        }
+        poly1 = poly1->link;
+    }
+
+    // Append remaining terms of poly2
+    while (poly2 != NULL) {
+        struct Node* new_node = create_node(poly2->coeff, poly2->exp);
+        if (result == NULL) {
+            result = new_node;
+            rtr = result;
+        } else {
+            rtr->link = new_node;
+            rtr = rtr->link;
+        }
+        poly2 = poly2->link;
     }
 
     return result;
-
 }
 
+// Function to print a polynomial
+void print_poly(struct Node* poly) {
+    struct Node* current = poly;
+    while (current) {
+        printf("%dx^%d", current->coeff, current->exp);
+        if (current->link) {
+            printf(" + ");
+        }
+        current = current->link;
+    }
+    printf("\n");
+}
 
-int main(){
-    int size1 , size2;
-    printf("Enter terms for Polynomial 1:");
-    scanf("%d" , &size1);
-    
-    struct Node* poly1 = create_node(NULL , NULL);
-    struct Node* ptr = poly1;
-    for(int i = 0 ; i< size1 ; i++){
-        int coeff , exp;
-        printf("Enter coeffiecient:");
-        scanf("%d" , &coeff);
-        printf("Enter Power:");
-        scanf("%d" , &exp);
-        if(i == 0){
-            ptr->coeff = coeff;
-            ptr->exp = exp;
-        }else{
-            struct Node* new = create_node(coeff , exp);
-            ptr->link = new;
+int main() {
+    int size1, size2;
+
+    // Input for Polynomial 1
+    printf("Enter number of terms for Polynomial 1: ");
+    scanf("%d", &size1);
+    struct Node* poly1 = NULL;
+    struct Node* tail1 = NULL;
+
+    for (int i = 0; i < size1; i++) {
+        int coeff, exp;
+        printf("Enter coefficient: ");
+        scanf("%d", &coeff);
+        printf("Enter exponent: ");
+        scanf("%d", &exp);
+        struct Node* new_node = create_node(coeff, exp);
+        if (poly1 == NULL) {
+            poly1 = new_node;
+            tail1 = new_node;
+        } else {
+            tail1->link = new_node;
+            tail1 = new_node;
         }
     }
 
-    printf("Enter terms for Polynomial 2:");
-    scanf("%d" , &size2);
-    
-    struct Node* poly2 = create_node(NULL , NULL);
-    struct Node* ptr2 = poly1;
-    for(int i = 0 ; i< size2 ; i++){
-        int coeff , exp;
-        printf("Enter coeffiecient:");
-        scanf("%d" , &coeff);
-        printf("Enter Power:");
-        scanf("%d" , &exp);
-        if(i == 0){
-            ptr2->coeff = coeff;
-            ptr2->exp = exp;
-        }else{
-            struct Node* new = create_node(coeff , exp);
-            ptr2->link = new;
+    // Input for Polynomial 2
+    printf("Enter number of terms for Polynomial 2: ");
+    scanf("%d", &size2);
+    struct Node* poly2 = NULL;
+    struct Node* tail2 = NULL;
+
+    for (int i = 0; i < size2; i++) {
+        int coeff, exp;
+        printf("Enter coefficient: ");
+        scanf("%d", &coeff);
+        printf("Enter exponent: ");
+        scanf("%d", &exp);
+        struct Node* new_node = create_node(coeff, exp);
+        if (poly2 == NULL) {
+            poly2 = new_node;
+            tail2 = new_node;
+        } else {
+            tail2->link = new_node;
+            tail2 = new_node;
         }
     }
 
-    struct Node* result = create_node(NULL , NULL);
-    result = add_poly(poly1 , poly2 , result);
+    // Add the polynomials
+    struct Node* result = add_poly(poly1, poly2);
 
+    // Display the result
+    printf("Result Polynomial: ");
+    print_poly(result);
 
     return 0;
 }
